@@ -2,6 +2,11 @@ import os
 from . import api
 import os.path as osp
 from flask import Flask, jsonify
+import labelu.db as model
+
+DBURI = f"sqlite:///{osp.dirname(__file__)}/../instance/db/instances.db"
+
+factory = model.db_factory(DBURI)
 
 def create_app():
 	r"""Creating a configured flask app
@@ -11,8 +16,7 @@ def create_app():
 	app = Flask(__name__)
 
 	app.config.from_mapping(
-		SECRET_KEY="labelu",
-		SQLALCHEMY_DATABASE_URI=f"sqlite:///{app.instance_path}/db/instances.db"
+		SECRET_KEY="labelu"
 	)
 
 	if not osp.exists(osp.join(app.instance_path, 'db')):
