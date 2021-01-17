@@ -2,11 +2,7 @@ import os
 from . import api
 import os.path as osp
 from flask import Flask, jsonify
-import labelu.db as model
 
-DBURI = f"sqlite:///{osp.dirname(__file__)}/../instance/db/instances.db"
-
-factory = model.db_factory(DBURI)
 
 def create_app():
 	r"""Creating a configured flask app
@@ -23,7 +19,7 @@ def create_app():
 		os.makedirs(osp.join(app.instance_path, 'db'))
 
 	app.register_blueprint(api.bp, url_prefix="/api/v1")
-
+	
 	@app.errorhandler(404)
 	def resource_not_found(e):
 		return jsonify({"code": 404, "msg": "Not Found", "success": False}), 404
