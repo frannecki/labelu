@@ -17,13 +17,12 @@
 	width: 512px;
 	height: 512px;
 	overflow: hidden;
-	border-radius: 10px;
 	border: 1px black;
+	margin-right: 30px;
 }
 
 .instance-image img {
 	width: 100%;
-	height: 100%;
 }
 
 @media screen and (max-width: 400px) {

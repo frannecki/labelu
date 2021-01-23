@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { labels } from './data'
 import './index.css'
 import logo from '../../logo.svg'
-import { submit, retrieve } from './api'
+import { submit, retrieve, retrieveSingle } from './api'
 
 interface IInstance {
 	file: string,
@@ -35,6 +35,25 @@ const LabelingView: React.FC = () => {
 		})
 	}, [])
 
+	useEffect(() => {
+		if(instances.length === 0) {
+			return
+		}
+		const uid = instances[currentIndex].uid
+		const file = instances[currentIndex].file
+		retrieveSingle(uid, file)
+		.then(({ data }) => {
+			if(!data.success) {
+				console.error(data.message)
+			}
+			if(currentIndex < instances.length)
+				setLabel(data.data.label)
+		})
+		.catch(err => {
+			console.error(err)
+		})
+	}, [instances, currentIndex])
+
 	const handleCheckboxChange = (idx: number) => (event: any) => {
 		const label_tmp = label === null ? 0 : label
 		if(event.target.checked)  setLabel(label_tmp | (1 << idx))
@@ -49,6 +68,7 @@ const LabelingView: React.FC = () => {
 		}
 		const uid = instances[currentIndex].uid
 		const file = instances[currentIndex].file
+		setLabel(0)
 		submit(uid, file, 0)
 		.then(({ data }) => {
 			if(!data.success) {
@@ -66,7 +86,6 @@ const LabelingView: React.FC = () => {
 		}
 		const uid = instances[currentIndex].uid
 		const file = instances[currentIndex].file
-		setLabel(0)
 		submit(uid, file, label)
 		.then(({ data }) => {
 			if(!data.success) {
@@ -110,7 +129,10 @@ const LabelingView: React.FC = () => {
 			<h1>Labeling</h1>
 			<div className="instance">
 				<div className="instance-image">
-					<img src={instances[currentIndex] && `/file/${instances[currentIndex].uid}/${instances[currentIndex].file}`} />
+					<img src={instances[currentIndex] && `/file/${instances[currentIndex].image}`} />
+				</div>
+				<div className="instance-image">
+					<img src={instances[currentIndex] && `/file/datasets/${instances[currentIndex].uid}/${instances[currentIndex].file}`} />
 				</div>
 				<div className="info">
 					<div className="vertical-divider"></div>
