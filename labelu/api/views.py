@@ -7,7 +7,7 @@ bp = Blueprint("data", __name__)
 def hello():
     return jsonify({"code": 200, "message": "hello", "success": True})
 
-@bp.route("/instance/label", methods=['PUT', 'GET'])
+@bp.route("/instance/label", methods=['PUT', 'POST'])
 def instance_label():
     if not request.is_json:
         return jsonify({
@@ -19,7 +19,7 @@ def instance_label():
     label = request.json.get("label")
     
     for field, name in zip([uid, filename, label], ["uid", "file", "label"]):
-        if field is not None or (name == "label" and request.method == 'GET'):
+        if field is not None or (name == "label" and request.method == 'POST'):
             continue
         return jsonify({
             "code": 400, "success": False,

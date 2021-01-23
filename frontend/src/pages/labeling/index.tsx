@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { labels } from './data'
 import './index.css'
-import logo from '../../logo.svg'
 import { submit, retrieve, retrieveSingle } from './api'
 
 interface IInstance {
@@ -173,7 +172,13 @@ const LabelingView: React.FC = () => {
 			</div>
 			<button id="submit-button" onClick={handleSubmit} disabled={label===null}>保存</button>
 			<div className="paginator">
-				<span onClick={handleIncrement(-1)}>&#10094;</span>
+				<span>
+					<button
+						onClick={handleIncrement(-1)}
+					>
+						&#10094;
+					</button>
+				</span>
 				{Array.from(Array(5).keys()).map(
 					item => item + Math.min(instances.length-1-item, Math.max(currentIndex-2, 0))).filter(
 						item => (item >= 0 && item < instances.length)
@@ -187,7 +192,13 @@ const LabelingView: React.FC = () => {
 						</button>
 					</span>
 				))}
-				<span onClick={handleIncrement(1)}>&#10095;</span>
+				<span>
+					<button
+						onClick={handleIncrement(1)}
+					>
+						&#10095;
+					</button>
+				</span>
 				<span><button onClick={handleConfirm}>确认良性</button></span>
 				<span></span>
 				<span><button onClick={handleJumpClick}>跳转</button></span>

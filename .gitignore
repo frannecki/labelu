@@ -2,3 +2,4 @@ node_modules/
 instance/
 *.egg-info/
 *.pyc
+/backup
