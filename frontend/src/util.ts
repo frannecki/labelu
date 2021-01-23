@@ -1,0 +1,1 @@
+export const HTTPSERVER_URL = "/data"

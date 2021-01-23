@@ -10,7 +10,7 @@ function App() {
       <Header />
       <BrowserRouter>
         <Route path="/dataset" component={ DatasetListView } />
-        <Route path="/labeling" component={ LabelingView } />
+        <Route path="/" component={ LabelingView } />
       </BrowserRouter>
     </>
   );

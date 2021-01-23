@@ -43,15 +43,30 @@ const LabelingView: React.FC = () => {
 		}
 	}
 
-	const handleSubmit = (event: any) => {
-		// console.log(currentIndex)
-		// console.log(label)
-		// return
+	const handleConfirm = () => {
 		if(currentIndex >= instances.length){
 			return
 		}
 		const uid = instances[currentIndex].uid
 		const file = instances[currentIndex].file
+		submit(uid, file, 0)
+		.then(({ data }) => {
+			if(!data.success) {
+				console.error(data.message)
+			}
+		})
+		.catch(err => {
+			console.error(err)
+		})
+	}
+
+	const handleSubmit = (event: any) => {
+		if(currentIndex >= instances.length){
+			return
+		}
+		const uid = instances[currentIndex].uid
+		const file = instances[currentIndex].file
+		setLabel(0)
 		submit(uid, file, label)
 		.then(({ data }) => {
 			if(!data.success) {
@@ -76,13 +91,18 @@ const LabelingView: React.FC = () => {
 	}
 
 	const handleIncrement = (num: number) => (event: any) => {
-		setLabel(instances[currentIndex + num].label)
-		setCurrentIndex(currentIndex + num)
+		const page = currentIndex + num
+		if(!isNaN(page) && page >= 0 && page < instances.length) {
+			setLabel(instances[page].label)
+			setCurrentIndex(page)
+		}
 	}
 
 	const handlePageChange = (num: number) => (event: any) => {
-		setLabel(instances[num].label)
-		setCurrentIndex(num)
+		if(!isNaN(num) && num >= 0 && num < instances.length) {
+			setLabel(instances[num].label)
+			setCurrentIndex(num)
+		}
 	}
 
 	return (
@@ -90,7 +110,7 @@ const LabelingView: React.FC = () => {
 			<h1>Labeling</h1>
 			<div className="instance">
 				<div className="instance-image">
-					<img src={logo} />
+					<img src={instances[currentIndex] && `/file/${instances[currentIndex].uid}/${instances[currentIndex].file}`} />
 				</div>
 				<div className="info">
 					<div className="vertical-divider"></div>
@@ -106,6 +126,10 @@ const LabelingView: React.FC = () => {
 						<div>
 							<h5>Patch File:</h5>
 							<p>{instances[currentIndex] && instances[currentIndex].file}</p>
+						</div>
+						<div>
+							<h5>Label</h5>
+							<p>{label}</p>
 						</div>
 					</div>
 				</div>
@@ -129,12 +153,20 @@ const LabelingView: React.FC = () => {
 			<div className="paginator">
 				<span onClick={handleIncrement(-1)}>&#10094;</span>
 				{Array.from(Array(5).keys()).map(
-					item => item + currentIndex-2).filter(
+					item => item + Math.min(instances.length-1-item, Math.max(currentIndex-2, 0))).filter(
 						item => (item >= 0 && item < instances.length)
 						).map((item, idx) => (
-					<span onClick={handlePageChange(item)}>{item}</span>
+					<span>
+						<button
+							onClick={handlePageChange(item)} 
+							style={item===currentIndex ? {color: "blue"} : {}}
+						>
+							{item}
+						</button>
+					</span>
 				))}
 				<span onClick={handleIncrement(1)}>&#10095;</span>
+				<span><button onClick={handleConfirm}>确认良性</button></span>
 				<span></span>
 				<span><button onClick={handleJumpClick}>跳转</button></span>
 				<span><input type="text" value={jumpInput} onChange={handleJumpInputChange} /></span>

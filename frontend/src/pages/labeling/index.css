@@ -72,12 +72,28 @@
 
 .paginator span {
 	font-size: larger;
-	margin: 0 30px 0 10px;
+	margin: 0 10px 0 10px;
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
-.paginator span:hover {
+.paginator button {
+	width: 50px;
+	background: none;
+	border: none;
+}
+
+.paginator button:hover {
 	color: lightblue;
 	cursor: pointer;
+}
+
+button:focus {
+	outline: none;
 }
 
 .paginator input {
