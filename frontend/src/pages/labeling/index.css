@@ -19,6 +19,17 @@
 	overflow: hidden;
 	border: 1px black;
 	margin-right: 30px;
+	display: flex;
+	flex-direction: column;
+}
+
+.bbox {
+	width: 86px;
+	height: 86px;
+	position: relative;
+	border: 1px solid red;
+	background: rgba(0, 0, 0, 0);
+	z-index: 999;
 }
 
 .instance-image img {
@@ -29,6 +40,10 @@
 	.instance-image {
 		width: 300px;
 		height: 300px;
+	}
+	.bbox {
+		width: 49px;
+		height: 49px;
 	}
 }
 

@@ -10,7 +10,17 @@ interface IInstance {
 	uid: string
 }
 
+interface IBoundingBox {
+	top: number;
+	left: number
+}
+
 const insts: IInstance[] = []
+
+const rect: IBoundingBox = {
+	top: 0,
+	left: 0
+}
 
 const LabelingView: React.FC = () => {
 
@@ -18,6 +28,7 @@ const LabelingView: React.FC = () => {
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [label, setLabel] = useState(0);
 	const [jumpInput, setJumpInput] = useState("");
+	const [bbox, setBbox] = useState(rect)
 
 	useEffect(() => {
 		retrieve()
@@ -40,13 +51,23 @@ const LabelingView: React.FC = () => {
 		}
 		const uid = instances[currentIndex].uid
 		const file = instances[currentIndex].file
+		const patchIndex = parseInt(file.split('.')[0])
+		if(!isNaN(patchIndex)) {
+			const top = -86 * (4-patchIndex/100)
+			const left = 86 * (patchIndex%100)
+			const r: IBoundingBox = {
+				top: top,	left: left
+			}
+			setBbox(r)
+		}
 		retrieveSingle(uid, file)
 		.then(({ data }) => {
 			if(!data.success) {
 				console.error(data.message)
 			}
-			if(currentIndex < instances.length)
+			if(currentIndex < instances.length) {
 				setLabel(data.data.label)
+			}
 		})
 		.catch(err => {
 			console.error(err)
@@ -128,9 +149,10 @@ const LabelingView: React.FC = () => {
 			<h1>Labeling</h1>
 			<div className="instance">
 				<div className="instance-image">
-					<img src={instances[currentIndex] && `/file/${instances[currentIndex].image}`} />
+					<img style={{marginBottom: 0}} src={instances[currentIndex] && `/file/${instances[currentIndex].image}`} />
+					<div className="bbox" style={{top: bbox.top, left: bbox.left}}></div>
 				</div>
-				<div className="instance-image">
+				<div className="instance-image" style={{width: "300px"}}>
 					<img src={instances[currentIndex] && `/file/datasets/${instances[currentIndex].uid}/${instances[currentIndex].file}`} />
 				</div>
 				<div className="info">
