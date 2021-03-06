@@ -8,7 +8,7 @@ Base = declarative_base()
 
 class Group(Base):
     r"""Group of images corresponding to the same sample slide"""
-    __tablename__ = "image"
+    __tablename__ = "group"
     id = Column(Integer, primary_key=True)
     uid = Column(String(), unique=True, nullable=False)
     label = Column(Integer)

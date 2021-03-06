@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from ..util import update_image_label, get_image_label, get_batch_info
+from ..util import update_group_label, get_group_label, get_group_info
 
 bp = Blueprint("data", __name__)
 
@@ -11,26 +11,30 @@ def hello():
 
 @bp.route("/group/label/<uid>", methods=['PUT', 'GET'])
 def instance_label(uid):
-    if not request.is_json:
+    if uid == "":
         return jsonify({
             "code": 400, "success": False,
-            "message": "Expecting json body"
+            "message": "Expecting group uid"
         }), 400
-    label = request.json.get("label")
-
-    if label is None and request.method == 'PUT':
-        return jsonify({
-            "code": 400, "success": False,
-            "message": "Expecting group label in json body"
-        }), 400
-
     if request.method == 'PUT':
-        msg, ok = update_image_label(uid, label)
+        if not request.is_json:
+            return jsonify({
+                "code": 400, "success": False,
+                "message": "Expecting json body"
+            }), 400
+        label = request.json.get("label")
+
+        if label is None:
+            return jsonify({
+                "code": 400, "success": False,
+                "message": "Expecting group label in json body"
+            }), 400
+        msg, ok = update_group_label(uid, int(label))
         return jsonify({
             "code": 200 if ok else 500, "success": ok, "message": msg
         })
     else:
-        data = get_image_label(uid)
+        data = get_group_label(uid)
         return jsonify({
             "code": 404 if data is None else 200,
             "success": False if data is None else True,
@@ -39,9 +43,9 @@ def instance_label(uid):
         })
 
 
-@bp.route("/group/info", methods=['GET', 'HEAD'])
+@bp.route("/group/info", methods=['GET'])
 def instance_info():
-    info = get_batch_info()
+    info = get_group_info()
     return jsonify({
         "code": 404 if info is None else 200,
         "success": False if info is None else True,

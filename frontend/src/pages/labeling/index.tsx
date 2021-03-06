@@ -146,13 +146,13 @@ const LabelingView: React.FC = () => {
 			<h1>Labeling</h1>
 			<div className="instance">
 				<div className="instance-group">
-					{[0 , 1, 2, 3, 4, 5, 6, 7, 8, 9].map((item, idx) => (
+					{/* {groups[currentIndex] && groups[currentIndex].instances.map((item, idx) => ( */}
+					{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((item, idx) => (
 							<img
 								style={{marginBottom: 0}}
 								alt=""
 								src={
-									// instances[currentIndex] && 
-									// `/file/${instances[currentIndex].image}`
+									// `/file/datasets/${groups[currentIndex].uid}/${item.file}`
 									"/logo512.png"
 								}
 								onClick={() => {setInstanceIdx(idx)}}
@@ -162,10 +162,10 @@ const LabelingView: React.FC = () => {
 				</div>
 				<div className="instance-image">
 					<img
-						alt=""	
+						alt=""
 						src={
-							// groups[currentIndex] && groups[currentIndex].instances[instanceIdx] && 
-							// `/file/datasets/${instances[currentIndex].uid}/${groups[currentIndex].instances[instanceIdx].file}`
+							// groups[currentIndex] && groups[currentIndex].instances[instanceIdx] &&
+							// `/file/datasets/${groups[currentIndex].uid}/${groups[currentIndex].instances[instanceIdx].file}`
 							"/logo512.png"
 						}
 					/>

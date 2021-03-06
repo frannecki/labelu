@@ -40,7 +40,7 @@ def get_group_label(uid: str) -> Union[dict, None]:
     return result
 
 
-def get_batch_info() -> Union[list, None]:
+def get_group_info() -> Union[list, None]:
     session = factory()
     result = None
     try:
