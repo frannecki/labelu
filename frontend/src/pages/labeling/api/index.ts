@@ -1,10 +1,8 @@
 import axios from 'axios'
 
-export const submit = async (uid: string , file: string, label: number) => {
-	return await axios.put("/api/v1/instance/label", 
+export const submit = async (uid: string, label: number) => {
+	return await axios.put(`/api/v1/group/label/${uid}`, 
 		{
-			uid: uid,
-			file: file,
 			label: label
 		},
 		{
@@ -16,19 +14,9 @@ export const submit = async (uid: string , file: string, label: number) => {
 }
 
 export const retrieve = async () => {
-    return await axios.get("/api/v1/instance/info")
+    return await axios.get("/api/v1/group/info")
 }
 
-export const retrieveSingle = async (uid: string, filename: string) => {
-	return await axios.post("/api/v1/instance/label",
-		{
-			uid: uid,
-			file: filename,
-		},
-		{
-			headers: {
-				"Content-Type": "application/json"
-			}
-		}
-	)
+export const retrieveSingle = async (uid: string) => {
+	return await axios.get(`/api/v1/group/label/${uid}`)
 }

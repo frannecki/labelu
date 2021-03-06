@@ -14,8 +14,8 @@
 }
 
 .instance-image {
-	width: 512px;
-	height: 512px;
+	width: 300px;
+	height: 300px;
 	overflow: hidden;
 	border: 1px black;
 	margin-right: 30px;
@@ -23,17 +23,33 @@
 	flex-direction: column;
 }
 
-.bbox {
+.instance-image img {
+	width: 100%;
+}
+
+.instance-group {
+	width: 512px;
+	height: 512px;
+	overflow: hidden;
+	border: 1px black;
+	margin-right: 30px;
+	display: grid;
+	grid-template-columns: repeat(auto-fill, 100px);
+	column-gap: 15px;
+	flex-direction: column;
+}
+
+.instance-group img {
+	width: 100%;
+}
+
+/* .bbox {
 	width: 86px;
 	height: 86px;
 	position: relative;
 	border: 1px solid red;
 	background: rgba(0, 0, 0, 0);
 	z-index: 999;
-}
-
-.instance-image img {
-	width: 100%;
 }
 
 @media screen and (max-width: 400px) {
@@ -45,7 +61,7 @@
 		width: 49px;
 		height: 49px;
 	}
-}
+} */
 
 .info {
 	width: 400px;

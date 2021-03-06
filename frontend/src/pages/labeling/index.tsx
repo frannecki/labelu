@@ -1,34 +1,29 @@
 import React, { useState, useEffect } from 'react'
 import { labels } from './data'
-import './index.css'
 import { submit, retrieve, retrieveSingle } from './api'
+import './index.css'
+import { group } from 'console'
 
 interface IInstance {
-	file: string,
-	image: string,
+	uid: string;
+	file: string;
+}
+
+interface IGroup {
+	uid: string;
 	label: number,
-	uid: string
+	instances: IInstance[];
 }
 
-interface IBoundingBox {
-	top: number;
-	left: number
-}
-
-const insts: IInstance[] = []
-
-const rect: IBoundingBox = {
-	top: 0,
-	left: 0
-}
+const groups_: IGroup[] = []
 
 const LabelingView: React.FC = () => {
 
-	const [instances, setInstances] = useState(insts)
+	const [groups, setGroups] = useState(groups_)
 	const [currentIndex, setCurrentIndex] = useState(0)
 	const [label, setLabel] = useState(0);
 	const [jumpInput, setJumpInput] = useState("");
-	const [bbox, setBbox] = useState(rect)
+	const [instanceIdx, setInstanceIdx] = useState(0);
 
 	useEffect(() => {
 		retrieve()
@@ -36,9 +31,23 @@ const LabelingView: React.FC = () => {
 			if(!data.success) {
 				console.error(data.message)
 			}
-			setInstances(data.data)
-			if(currentIndex < instances.length)
-				setLabel(instances[currentIndex].label)
+			const instance_groups = data.data.map((item: any) => {
+				const grp: IGroup = {
+					uid: item.uid,
+					label: item.label,
+					instances: item.instances.map((inst: any) => {
+						const instance: IInstance = {
+							uid: inst.uid,
+							file: inst.file,
+						}
+						return instance
+					})
+				}
+				instance_groups.push(grp)
+			})
+			setGroups(instance_groups)
+			if(currentIndex < instance_groups.length)
+				setLabel(instance_groups[currentIndex].label || 0)
 		})
 		.catch(err => {
 			console.error(err)
@@ -46,33 +55,23 @@ const LabelingView: React.FC = () => {
 	}, [])
 
 	useEffect(() => {
-		if(instances.length === 0) {
+		if(groups.length === 0) {
 			return
 		}
-		const uid = instances[currentIndex].uid
-		const file = instances[currentIndex].file
-		const patchIndex = parseInt(file.split('.')[0])
-		if(!isNaN(patchIndex)) {
-			const top = -86 * (4-patchIndex/100)
-			const left = 86 * (patchIndex%100)
-			const r: IBoundingBox = {
-				top: top,	left: left
-			}
-			setBbox(r)
-		}
-		retrieveSingle(uid, file)
+		const uid = groups[currentIndex].uid
+		retrieveSingle(uid)
 		.then(({ data }) => {
 			if(!data.success) {
 				console.error(data.message)
 			}
-			if(currentIndex < instances.length) {
+			if(currentIndex < groups.length) {
 				setLabel(data.data.label)
 			}
 		})
 		.catch(err => {
 			console.error(err)
 		})
-	}, [instances, currentIndex])
+	}, [groups, currentIndex])
 
 	const handleCheckboxChange = (idx: number) => (event: any) => {
 		const label_tmp = label === null ? 0 : label
@@ -83,13 +82,12 @@ const LabelingView: React.FC = () => {
 	}
 
 	const handleConfirm = () => {
-		if(currentIndex >= instances.length){
+		if(currentIndex >= groups.length){
 			return
 		}
-		const uid = instances[currentIndex].uid
-		const file = instances[currentIndex].file
+		const uid = groups[currentIndex].uid
 		setLabel(0)
-		submit(uid, file, 0)
+		submit(uid, 0)
 		.then(({ data }) => {
 			if(!data.success) {
 				console.error(data.message)
@@ -101,12 +99,11 @@ const LabelingView: React.FC = () => {
 	}
 
 	const handleSubmit = (event: any) => {
-		if(currentIndex >= instances.length){
+		if(currentIndex >= groups.length){
 			return
 		}
-		const uid = instances[currentIndex].uid
-		const file = instances[currentIndex].file
-		submit(uid, file, label)
+		const uid = groups[currentIndex].uid
+		submit(uid, label)
 		.then(({ data }) => {
 			if(!data.success) {
 				console.error(data.message)
@@ -123,23 +120,23 @@ const LabelingView: React.FC = () => {
 
 	const handleJumpClick = (event: any) => {
 		const page = parseInt(jumpInput)
-		if(!isNaN(page) && page >= 0 && page < instances.length) {
-			setLabel(instances[page].label)
+		if(!isNaN(page) && page >= 0 && page < groups.length) {
+			setLabel(groups[page].label)
 			setCurrentIndex(page)
 		}
 	}
 
-	const handleIncrement = (num: number) => (event: any) => {
+	const handleIncrement = (num: number) => () => {
 		const page = currentIndex + num
-		if(!isNaN(page) && page >= 0 && page < instances.length) {
-			setLabel(instances[page].label)
+		if(!isNaN(page) && page >= 0 && page < groups.length) {
+			setLabel(groups[page].label)
 			setCurrentIndex(page)
 		}
 	}
 
-	const handlePageChange = (num: number) => (event: any) => {
-		if(!isNaN(num) && num >= 0 && num < instances.length) {
-			setLabel(instances[num].label)
+	const handlePageChange = (num: number) => () => {
+		if(!isNaN(num) && num >= 0 && num < groups.length) {
+			setLabel(groups[num].label)
 			setCurrentIndex(num)
 		}
 	}
@@ -148,31 +145,49 @@ const LabelingView: React.FC = () => {
 		<div className="main-layout">
 			<h1>Labeling</h1>
 			<div className="instance">
-				<div className="instance-image">
-					<img style={{marginBottom: 0}} src={instances[currentIndex] && `/file/${instances[currentIndex].image}`} />
-					<div className="bbox" style={{top: bbox.top, left: bbox.left}}></div>
+				<div className="instance-group">
+					{[0 , 1, 2, 3, 4, 5, 6, 7, 8, 9].map((item, idx) => (
+							<img
+								style={{marginBottom: 0}}
+								alt=""
+								src={
+									// instances[currentIndex] && 
+									// `/file/${instances[currentIndex].image}`
+									"/logo512.png"
+								}
+								onClick={() => {setInstanceIdx(idx)}}
+							/>
+						))
+					}
 				</div>
-				<div className="instance-image" style={{width: "300px"}}>
-					<img src={instances[currentIndex] && `/file/datasets/${instances[currentIndex].uid}/${instances[currentIndex].file}`} />
+				<div className="instance-image">
+					<img
+						alt=""	
+						src={
+							// groups[currentIndex] && groups[currentIndex].instances[instanceIdx] && 
+							// `/file/datasets/${instances[currentIndex].uid}/${groups[currentIndex].instances[instanceIdx].file}`
+							"/logo512.png"
+						}
+					/>
 				</div>
 				<div className="info">
 					<div className="vertical-divider"></div>
 					<div className="instance-properties">
 						<div>
+							<h5>Group Uid:</h5>
+							<p>{groups[currentIndex] && groups[currentIndex].uid}</p>
+						</div>
+						<div>
+							<h5>Group Label:</h5>
+							<p>{groups[currentIndex] && groups[currentIndex].label}</p>
+						</div>
+						<div>
 							<h5>Image Uid:</h5>
-							<p>{instances[currentIndex] && instances[currentIndex].uid}</p>
+							<p>{groups[currentIndex] && groups[currentIndex].instances[instanceIdx] && groups[currentIndex].instances[instanceIdx].uid}</p>
 						</div>
 						<div>
 							<h5>Image File:</h5>
-							<p>{instances[currentIndex] && instances[currentIndex].image}</p>
-						</div>
-						<div>
-							<h5>Patch File:</h5>
-							<p>{instances[currentIndex] && instances[currentIndex].file}</p>
-						</div>
-						<div>
-							<h5>Label</h5>
-							<p>{label}</p>
+							<p>{groups[currentIndex] && groups[currentIndex].instances[instanceIdx] && groups[currentIndex].instances[instanceIdx].file}</p>
 						</div>
 					</div>
 				</div>
@@ -202,8 +217,8 @@ const LabelingView: React.FC = () => {
 					</button>
 				</span>
 				{Array.from(Array(5).keys()).map(
-					item => item + Math.min(instances.length-1-item, Math.max(currentIndex-2, 0))).filter(
-						item => (item >= 0 && item < instances.length)
+					item => item + Math.min(groups.length-1-item, Math.max(currentIndex-2, 0))).filter(
+						item => (item >= 0 && item < groups.length)
 						).map((item, idx) => (
 					<span>
 						<button
@@ -223,8 +238,8 @@ const LabelingView: React.FC = () => {
 				</span>
 				<span><button onClick={handleConfirm}>确认良性</button></span>
 				<span></span>
-				<span><button onClick={handleJumpClick}>跳转</button></span>
 				<span><input type="text" value={jumpInput} onChange={handleJumpInputChange} /></span>
+				<span><button onClick={handleJumpClick}>跳转</button></span>
 			</div>
 		</div>
 	)
